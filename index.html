@@ -54,7 +54,7 @@
 
     .welcome-box {
       max-width: 50%;
-      padding-top: 150px;
+      padding-top: 150px; /* Adjusted to give space below header elements */
     }
 
     h1 {
@@ -72,7 +72,7 @@
       top: 40px;
       right: 40px;
       text-align: right;
-      background: rgba(0, 0, 0, 0.0);
+      background: rgba(0, 0, 0, 0.0); /* Transparent background */
       padding: 10px 16px;
       border-radius: 10px;
     }
@@ -105,31 +105,38 @@
       min-width: 140px;
     }
 
-.weather-box {
-  position: absolute;
-  bottom: 40px;
-  right: 300px;
-  width: 300px;
-  z-index: 10;
-}
+    .weather-box {
+      position: absolute;
+      right: 300px;
+      bottom: 40px;
+      width: 250px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      border-radius: 10px;
+      z-index: 10;
+      box-sizing: border-box;
+      text-align: center;
+    }
 
-.weatherwidget-io {
-  width: 100% !important;
-  height: auto !important;
-  min-height: 160px;
-  border: none;
-  overflow: hidden;
-  display: block;
-}
+    /* Styles to ensure the weather widget iframe is visible */
+    .weatherwidget-io {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 150px !important;
+        border: none !important;
+        overflow: hidden !important;
+        display: block !important;
+    }
 
     .wifi-box {
       position: absolute;
       bottom: 20px;
       right: 40px;
       text-align: center;
-      background: rgba(0, 0, 0, 0);
+      background: rgba(0, 0, 0, 0.5);
       padding: 15px;
       border-radius: 10px;
+      z-index: 3;
     }
 
     .wifi-box img {
@@ -140,10 +147,11 @@
       margin-left: auto;
       margin-right: auto;
     }
+
+    /* Fullscreen prompt styles are removed as per request */
   </style>
 </head>
 <body>
-  <!-- Background Slideshow -->
   <div class="slideshow-container">
     <div class="slide active" style="background-image: url('https://i.imgur.com/pYJ0usW.jpg');"></div>
     <div class="slide" style="background-image: url('https://i.imgur.com/VIzNdzp.jpg');"></div>
@@ -152,10 +160,6 @@
     <div class="slide" style="background-image: url('https://i.imgur.com/Zq18tnN.jpg');"></div>
     <div class="slide" style="background-image: url('https://i.imgur.com/ApV6up5.jpg');"></div>
     <div class="slide" style="background-image: url('https://i.imgur.com/MIznTTB.jpg');"></div>
-
-
-
-
   </div>
 
   <div class="overlay">
@@ -171,30 +175,17 @@
       <div class="date" id="datePart"></div>
     </div>
 
-	<!-- WEATHER WIDGET -->
-<div class="weather-box">
-  <a class="weatherwidget-io"
-     href="https://forecast7.com/en/10d61123d89/cebu/"
-     data-label_1="Mantalongon, Dalaguete"
-     data-label_2="WEATHER"
-     data-mode="Current"
-     data-days="3"
-     data-textcolor="#fcfafa">
-     Mantalongon, Dalaguete WEATHER
-  </a>
-</div>
-
-<!-- WEATHER WIDGET SCRIPT -->
-<script>
-!function(d,s,id){
-  var js,fjs=d.getElementsByTagName(s)[0];
-  if(!d.getElementById(id)){
-    js=d.createElement(s); js.id=id;
-    js.src='https://weatherwidget.io/js/widget.min.js';
-    fjs.parentNode.insertBefore(js,fjs);
-  }
-}(document,'script','weatherwidget-io-js');
-</script>
+	<div class="weather-box">
+      <a class="weatherwidget-io"
+           href="https://forecast7.com/en/10d61123d89/cebu/"
+           data-label_1="Mantalongon, Dalaguete"
+           data-label_2="WEATHER"
+           data-mode="Current"
+           data-days="3"
+           data-textcolor="#fcfafa">
+           Mantalongon, Dalaguete WEATHER
+      </a>
+    </div>
 
     <div class="wifi-box" id="wifiInfo">
       <div id="wifiText"></div>
@@ -208,7 +199,32 @@
   </div>
 
   <script>
-    // Slide background every 5s
+    // --- Fullscreen Functionality ---
+    function enterFullscreen(element) {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.mozRequestFullScreen) { /* Firefox */
+        element.mozRequestFullScreen();
+      } else if (element.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) { /* IE/Edge */
+        element.msRequestFullscreen();
+      }
+    }
+
+    // Attempt to enter fullscreen automatically on load
+    // Note: Most browsers require user interaction for fullscreen. This might not work without specific browser settings.
+    document.addEventListener('DOMContentLoaded', () => {
+        enterFullscreen(document.documentElement);
+    });
+
+    // --- Auto-Refresh Functionality ---
+    const AUTO_REFRESH_INTERVAL_SECONDS = 120; // Refresh every 2 minutes (120 seconds)
+    setTimeout(() => {
+        location.reload();
+    }, AUTO_REFRESH_INTERVAL_SECONDS * 1000); // Convert seconds to milliseconds
+
+    // --- Slideshow Functionality ---
     let slideIndex = 0;
     const slides = document.querySelectorAll('.slide');
     setInterval(() => {
@@ -217,6 +233,7 @@
       slides[slideIndex].classList.add('active');
     }, 5000);
 
+    // --- Guest Data Fetching ---
     const roomNumber = "101"; // Change this dynamically for each room
     const scriptUrl = "https://script.google.com/macros/s/AKfycbwFdJJP6bF7Xny7l4qJEZP4de6u-quGeT_zGUAPY0JCFT9gMtWnbg4LFTBP0-F565F6/exec";
 
@@ -252,8 +269,13 @@
 
         document.getElementById("checkIn").innerHTML = `<strong>Check-In</strong><br/>${guest["Check-in"]}`;
         document.getElementById("checkOut").innerHTML = `<strong>Check-Out</strong><br/>${guest["Check-out"]}`;
+      })
+      .catch(error => {
+          console.error("Error fetching guest data:", error);
+          document.getElementById("details").innerHTML = "Failed to load guest information. Please contact the front desk.";
       });
 
+    // --- Clock Functionality ---
     function updateClock() {
       const now = new Date();
       const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -263,7 +285,18 @@
     }
 
     updateClock();
-    setInterval(updateClock, 60000);
+    setInterval(updateClock, 60000); // Clock updates every minute
+  </script>
+
+  <script>
+  !function(d,s,id){
+    var js,fjs=d.getElementsBygetElementsByTagName(s)[0];
+    if(!d.getElementById(id)){
+      js=d.createElement(s); js.id=id;
+      js.src='https://weatherwidget.io/js/widget.min.js';
+      fjs.parentNode.insertBefore(js,fjs);
+    }
+  }(document,'script','weatherwidget-io-js');
   </script>
 </body>
 </html>
